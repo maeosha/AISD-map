@@ -173,3 +173,40 @@ Val Hashmap<Val, Key, Container>::search_value(Key& key) {
     }
     throw std::runtime_error("Key not found");
 }
+
+template <typename Val, typename Key, typename Container>
+bool Hashmap<Val, Key, Container>::contains(const Val& value) const {
+    for (const auto& bucket_list_ptr : hash_data) {
+        if (bucket_list_ptr) {
+            for (const auto& bucket : *bucket_list_ptr) {
+                if (bucket.get_value() == value) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+template <typename Val, typename Key, typename Container>
+void Hashmap<Val, Key, Container>::erase(const Key& key) {
+    size_t hashed_key = hash_function(key, hash_data.size());
+    if (hash_data[hashed_key]) {
+        auto* bucket_list = hash_data[hashed_key];
+        for (auto it = bucket_list->begin(); it != bucket_list->end(); ++it) {
+            if (it->get_key() == key) {
+                bucket_list->erase(it);
+                --size;
+                if (bucket_list->empty()) {
+                    delete bucket_list;
+                    hash_data[hashed_key] = nullptr;
+                }
+                return;
+            }
+        }
+    }
+}
+
+template <typename Val, typename Key, typename Container>
+void Hashmap<Val, Key, Container>::print() const {
+    std::cout
