@@ -254,3 +254,33 @@ size_t Hashmap<Val, Key, Container>::hash_function(Key& key) const {
     float hashed_key = static_cast<int>(key) * rand_constant;
     return static_cast<size_t>(hashed_key * hash_data.size());
 }
+
+int translation_roman_num(std::string roman_num){
+    auto map = Hashmap<int, char>();
+    map.insert(1, (char &) "I");
+    map.insert(5, (char &)"V");
+    map.insert(10, (char &)"X");
+    map.insert(50, (char &)"L");
+    map.insert(100, (char &)"C");
+    map.insert(500, (char &)"D");
+    map.insert(1000, (char &)"M");
+
+    int sum = 0;
+
+    for (size_t index = 0; index < roman_num.size() - 1; index++){
+        if (map.search_value(roman_num[index]) < map.search_value(roman_num[index + 1])){
+            sum -= map.search_value(roman_num[index]);
+        }
+
+        else{
+            sum += map.search_value(roman_num[index]);
+        }
+    }
+
+    sum += map.search_value(roman_num[roman_num.size() - 1]);
+    return sum;
+}
+
+int main() {
+    std::cout << translation_roman_num("XIX");
+}
