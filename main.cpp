@@ -61,3 +61,25 @@ RType generate_random_real_number(RType min_value, RType max_value) {
     }
 }
 
+template <typename Val, typename Key>
+Bucket<Val, Key>::Bucket() : value(Val()), key(Key()) {}
+
+template <typename Val, typename Key>
+Bucket<Val, Key>::Bucket(Val value, Key key) : value(value), key(key) {}
+
+template <typename Val, typename Key>
+Val Bucket<Val, Key>::get_value() const {
+    return value;
+}
+
+template <typename Val, typename Key>
+void Bucket<Val, Key>::set_value(const Val& value) {
+    this->value = value;
+}
+
+template <typename Val, typename Key>
+Key Bucket<Val, Key>::get_key() const {
+    return key;
+}
+
+
