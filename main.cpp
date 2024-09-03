@@ -114,3 +114,62 @@ Hashmap<Val, Key, Container>::~Hashmap() {
     hash_data.clear();
 }
 
+template <typename Val, typename Key, typename Container>
+void Hashmap<Val, Key, Container>::insert(const Val& value, Key& key) {
+    size_t hashed_key = hash_function(key);
+
+    if (!hash_data[hashed_key]) {
+        hash_data[hashed_key] = new Container;
+    }
+
+    for (const auto& bucket : *hash_data[hashed_key]) {
+        if (bucket.get_key() == key) {
+            return;
+        }
+    }
+
+    hash_data[hashed_key]->emplace_back(value, key);
+    ++size;
+}
+
+template <typename Val, typename Key, typename Container>
+void Hashmap<Val, Key, Container>::insert_or_assign(const Val& value, const Key& key) {
+    size_t hashed_key = hash_function(key, hash_data.size());
+    if (!hash_data[hashed_key]) {
+        hash_data[hashed_key] = new Container;
+    }
+
+    for (auto& bucket : *hash_data[hashed_key]) {
+        if (bucket.get_key() == key) {
+            bucket.set_value(value);
+            return;
+        }
+    }
+    insert(value, key);
+}
+
+template <typename Val, typename Key, typename Container>
+Bucket<Val, Key>* Hashmap<Val, Key, Container>::search(Key& key) {
+    size_t hashed_key = hash_function(key);
+    if (hash_data[hashed_key]) {
+        for (auto& bucket : *hash_data[hashed_key]) {
+            if (bucket.get_key() == key) {
+                return &bucket;
+            }
+        }
+    }
+    return nullptr;
+}
+
+template <typename Val, typename Key, typename Container>
+Val Hashmap<Val, Key, Container>::search_value(Key& key) {
+    size_t hashed_key = hash_function(key);
+    if (hash_data[hashed_key]) {
+        for (auto& bucket : *hash_data[hashed_key]) {
+            if (bucket.get_key() == key) {
+                return bucket.get_value();
+            }
+        }
+    }
+    throw std::runtime_error("Key not found");
+}
