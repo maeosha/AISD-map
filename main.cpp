@@ -1,9 +1,3 @@
-#ifndef UNTITLED_LIBRARY_H
-#define UNTITLED_LIBRARY_H
-
-#define FILL_FACTOR 0.75
-#define GROW_RATIO 1.6
-
 #include <vector>
 #include <list>
 #include <random>
@@ -54,6 +48,16 @@ public:
     Val search_value(Key &key);
 };
 
-#include "library.h"
+template <typename RType>
+RType generate_random_real_number(RType min_value, RType max_value) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    if constexpr (std::is_integral_v<RType>) {
+        std::uniform_int_distribution<RType> dist(min_value, max_value);
+        return dist(gen);
+    } else {
+        std::uniform_real_distribution<RType> dist(min_value, max_value);
+        return dist(gen);
+    }
+}
 
-#endif // UNTITLED_LIBRARY_H
