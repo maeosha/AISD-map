@@ -162,7 +162,7 @@ Bucket<Val, Key>* Hashmap<Val, Key, Container>::search(Key& key) {
 }
 
 template <typename Val, typename Key, typename Container>
-Val Hashmap<Val, Key, Container>::search_value(Key& key) {
+Val Hashmap<Val, Key, Container>::search_value(Key& key){
     size_t hashed_key = hash_function(key);
     if (hash_data[hashed_key]) {
         for (auto& bucket : *hash_data[hashed_key]) {
@@ -171,7 +171,6 @@ Val Hashmap<Val, Key, Container>::search_value(Key& key) {
             }
         }
     }
-    throw std::runtime_error("Key not found");
 }
 
 template <typename Val, typename Key, typename Container>
@@ -209,4 +208,49 @@ void Hashmap<Val, Key, Container>::erase(const Key& key) {
 
 template <typename Val, typename Key, typename Container>
 void Hashmap<Val, Key, Container>::print() const {
-    std::cout
+    std::cout << "{";
+    bool first = true;
+    for (const auto& bucket_list_ptr : hash_data) {
+        if (bucket_list_ptr) {
+            for (const auto& bucket : *bucket_list_ptr) {
+                if (!first) {
+                    std::cout << ", ";
+                }
+                first = false;
+                std::cout << bucket.get_key() << ": " << bucket.get_value();
+            }
+        }
+    }
+    std::cout << "}" << std::endl;
+}
+
+template <typename Val, typename Key, typename Container>
+size_t Hashmap<Val, Key, Container>::count(const Key& key) const {
+    size_t hashed_key = hash_function(key, hash_data.size());
+    return hash_data[hashed_key] ? hash_data[hashed_key]->size() : 0;
+}
+
+template <typename Val, typename Key, typename Container>
+void Hashmap<Val, Key, Container>::grow() {
+    size_t new_size = static_cast<size_t>(size * GROW_RATIO);
+    std::vector<Container*> new_hash_data(new_size, nullptr);
+
+    for (auto& bucket_list_ptr : hash_data) {
+        if (bucket_list_ptr) {
+            for (auto& bucket : *bucket_list_ptr) {
+                size_t new_hashed_key = hash_function(bucket.key, new_size);
+                if (!new_hash_data[new_hashed_key]) {
+                    new_hash_data[new_hashed_key] = new Container;
+                }
+                new_hash_data[new_hashed_key]->push_back(bucket);
+            }
+            delete bucket_list_ptr;
+        }
+    }
+}
+
+template <typename Val, typename Key, typename Container>
+size_t Hashmap<Val, Key, Container>::hash_function(Key& key) const {
+    float hashed_key = static_cast<int>(key) * rand_constant;
+    return static_cast<size_t>(hashed_key * hash_data.size());
+}
